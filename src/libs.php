@@ -5,6 +5,9 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class SiteCrawlerException extends \Exception {}
 
+/**
+ * Crawls a site looking a for a quote paragraph
+ */
 abstract class SiteCrawler
 {   
     /**
@@ -26,6 +29,9 @@ abstract class SiteCrawler
     abstract public function getQuote();
 }
 
+/**
+ * http://www.contoerotico.com.br/categorias/heterosexual/ crawler
+ */
 class ContoErotico extends SiteCrawler 
 {
     public static $site_location = 
@@ -41,12 +47,21 @@ class ContoErotico extends SiteCrawler
         $random_tale = $tale_links->eq(rand(0, count($tale_links) - 1));
         // go to the tale page
         $crawler = new Crawler(file_get_contents($random_tale->attr('href')));
-        // divide the tale in paragraphs
-        $paragraphs = explode('<br>', $crawler->filter('.single-main p')->text());
+        // get the tale text
+        $tale_text = $crawler->filter('.single-main p')->text();
+
+        //limit the caracter number of the text
+        $text_limit = 500;
+        $text_len = strlen($tale_text);
+        if ($text_len > $text_limit) {
+            $sort_limit = $text_len - $text_limit;
+            $min = rand(0, $sort_limit - 1);
+            $tale_text = substr($tale_text, $min, $text_limit);
+        }
 
         //return a random paragraph
         return array('title' => $random_tale->text(),
-            'content' => array_rand($paragraphs));
+            'content' => $tale_text);
     }
 }
 
