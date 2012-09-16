@@ -1,10 +1,6 @@
 <?php
 // tests for our mini-app
 
-use \RPQ\SiteCrawler;
-use \RPQ\ContoErotico;
-use \RPQ\SiteCrawlerException;
-
 /**
  * Test Case for the get_a_quote function
  **/
@@ -31,10 +27,8 @@ class GetQuoteCase extends \PHPUnit_Framework_TestCase
             will($this->returnValue($fake_quote));
         // get json
         $quote_json = get_a_quote($this->site_crawler);
-        // decode
-        $quote = json_decode($quote_json);
-        //test the keys
-        $this->assertEquals($fake_quote, $quote,
+        //test the return
+        $this->assertEquals(json_encode($fake_quote), $quote_json,
             "We could not retrieve the quote");
     }
 
@@ -48,10 +42,8 @@ class GetQuoteCase extends \PHPUnit_Framework_TestCase
             will($this->throwException(new SiteCrawlerException()));
         // get json
         $quote_json = get_a_quote($this->site_crawler);
-        // decode
-        $quote = json_decode($quote_json);
         //test the keys
-        $this->assertEquals(SiteCrawler::$bad_return, $quote,
+        $this->assertEquals(json_encode(SiteCrawler::$bad_output), $quote_json,
             "Oops we were expecting a bad response");
     }
 } // END class GetQuoteCase extends \PHPUnit_Framework_TestCase

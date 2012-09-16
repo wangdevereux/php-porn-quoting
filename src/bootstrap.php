@@ -1,5 +1,8 @@
 <?php
+//root dir
+define('RPQROOT', realpath(__DIR__ . '/../'));
+
 // composer autoload
-require_once __DIR__.'/../vendor/autoload.php';
+require_once RPQROOT . '/vendor/autoload.php';
 // libs
-require_once __DIR__ . '/libs.php';
+require_once RPQROOT . '/src/libs.php';
