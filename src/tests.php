@@ -79,7 +79,7 @@ class ContoEroticoCase extends \PHPUnit_Framework_TestCase
             '/garbage/sample_site/empty.html';
         $site_crawler = new ContoErotico();
         //that is what we want!
-        $this->setExpectedException('RPQ\\SiteCrawlerException');
+        $this->setExpectedException('SiteCrawlerException');
         //we should see an exception here
         $site_crawler->getQuote();
     }
