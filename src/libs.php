@@ -27,6 +27,32 @@ abstract class SiteCrawler
      * @param array eg: array('title' => '...', 'content' => '...')
      **/
     abstract public function getQuote();
+
+    /**
+     * Get site's base url
+     *
+     * Here we believe that the programmer has configured a valid url
+     */
+    protected function getBase()
+    {
+        preg_match("@^http[s]?://[^/]+@", self::$site_location, $match);
+
+        return $match[0] . '/';
+    }
+
+    /**
+     * Convert a relative url into a full url
+     *
+     * @return string  the page full url
+     */
+    public function normatize($url)
+    {
+        if(!preg_match('@^http[s]?://[^/]+@', $url)) {
+            $url = $this->getBase() . $url;
+        }
+
+        return $url;
+    }
 }
 
 /**
@@ -39,16 +65,31 @@ class ContoErotico extends SiteCrawler
 
     public function getQuote()
     {   
-        //dom crawler
-        $crawler = new Crawler(file_get_contents(self::$site_location));
+        // reads the site
+        $crawler = new Crawler(file_get_contents(
+            $this->normatize(self::$site_location)));
         //search tale links
         $tale_links = $crawler->filter('.content_left h3 a');
-        // get a tale
+        // found anything?
+        if (!count($tale_links)) {
+            // tale links not found
+            throw new SiteCrawlerException('Not good, no quotes found.');
+        }
+
+        // get a tale link
         $random_tale = $tale_links->eq(rand(0, count($tale_links) - 1));
         // go to the tale page
-        $crawler = new Crawler(file_get_contents($random_tale->attr('href')));
-        // get the tale text
-        $tale_text = $crawler->filter('.single-main p')->text();
+        $crawler = new Crawler(file_get_contents(
+            $this->normatize($random_tale->attr('href'))));
+        // search for tale content
+        $tale_content = $crawler->filter('.single-main p');
+        // found anything?
+        if (!count($tale_content)) {
+            // tale links not found
+            throw new SiteCrawlerException('Not good, no quotes found.');
+        }
+        // actualy gets the content
+        $tale_text = $tale_content->text();
 
         //limit the caracter number of the text
         $text_limit = 500;
